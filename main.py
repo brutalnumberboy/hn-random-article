@@ -1,6 +1,7 @@
 import random
 import sys
 import getopt
+import argparse
 import webbrowser
 from random import choice
 
@@ -36,27 +37,24 @@ def main():
         -d, --date=DATE  Date range for stories: all, last24h, pastWeek, pastMonth, pastYear. Defaults to all
         -s, --sort=SORT  Sort stories: byDate, byPopularity. Defaults to byPopularity
     """
-    try:
-        opts, args = getopt.getopt(sys.argv[1:], "hq:d:s:", ["--help", "--query=", "--date_range=", "--sort="])
-    except getopt.GetoptError as err:
-        print(err)
-        print(help_message)
-        sys.exit(2)
+    parser = argparse.ArgumentParser(add_help=False)
+    parser.add_argument("-h", "--help", help="Display this help message", action='store_true')
+    parser.add_argument("-q", "--query", help="Optional query for stories")
+    parser.add_argument("-d", "--date", help="Date range for stories: all, last24h, pastWeek, pastMonth, pastYear. Defaults to all")
+    parser.add_argument("-s", "--sort", help="Sort stories: byDate, byPopularity. Defaults to byPopularity")
+    args = parser.parse_args()
     query = None
     date_range = 'all'
     sort = 'byPopularity'
-    for o, a in opts:
-        if o in ("-h", "--help"):
-            print(help_message)
-            sys.exit(0)
-        elif o in ("-q", "--query"):
-            query = a
-        elif o in ("-d", "--date_range"):
-            date_range = a
-        elif o in ("-s", "--sort"):
-            sort = a
-        else:
-            assert False, "unhandled option"
+    if args.query:
+        query = args.query
+    elif args.date:
+        date_range = args.date
+    elif args.sort:
+        sort = args.sort
+    elif args.help:
+        print(help_message)
+        sys.exit(2)
 
     if query and date_range and sort:
         search_stories(query, date_range, sort)
